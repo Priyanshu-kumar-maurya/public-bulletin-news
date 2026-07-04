@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Public Bulletin — Breaking News, Straight Talk</title>
+  <meta name="description" content="Public Bulletin — Latest news on India, World, Politics, Business, Technology, Sports and Entertainment.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Source+Sans+3:wght@400;500;600;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<div class="wire-strip">
+  <span class="date" id="todayDate">—</span>
+  <span class="tagline">Breaking News, Straight Talk</span>
+</div>
+
+<header class="masthead">
+  <a href="#/" style="display:inline-block;">
+    <div class="brand"><span class="seal"></span> Public Bulletin</div>
+  </a>
+  <div class="sub">Independent News Portal</div>
+</header>
+
+<nav class="navbar">
+  <div class="navwrap">
+    <div class="navlinks" id="navLinks">
+      <a href="#/" data-nav="home">Home</a>
+      <a href="#/category/india" data-nav="india">India</a>
+      <a href="#/category/world" data-nav="world">World</a>
+      <a href="#/category/politics" data-nav="politics">Politics</a>
+      <a href="#/category/business" data-nav="business">Business</a>
+      <a href="#/category/technology" data-nav="technology">Technology</a>
+      <a href="#/category/sports" data-nav="sports">Sports</a>
+      <a href="#/category/entertainment" data-nav="entertainment">Entertainment</a>
+      <a href="#/admin" data-nav="admin"><i class="fa-solid fa-user-shield" style="margin-right:4px;"></i>Admin</a>
+    </div>
+    <div id="navAuthSection" style="display:flex;align-items:center;margin-left:auto;"></div>
+    <button class="menu-toggle" id="menuToggle"><i class="fa-solid fa-bars"></i></button>
+    <div class="search-box">
+      <button onclick="doSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
+      <input id="searchInput" type="text" placeholder="Search news..." onkeydown="if(event.key==='Enter')doSearch()">
+    </div>
+  </div>
+</nav>
+
+<div class="ticker-wrap">
+  <div class="ticker-label"><span class="dot"></span> Breaking</div>
+  <div class="ticker-track"><ul id="tickerList"></ul></div>
+</div>
+
+<main id="app" class="container"></main>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <h5>Public Bulletin</h5>
+      <p style="font-size:.85rem;max-width:340px;">Trusted, fast-moving news from India and around the world — covering India, World, Politics, Business, Technology, Sports and Entertainment, every single day.</p>
+    </div>
+    <div>
+      <h5>Categories</h5>
+      <a href="#/category/india">India</a>
+      <a href="#/category/politics">Politics</a>
+      <a href="#/category/business">Business</a>
+      <a href="#/category/sports">Sports</a>
+    </div>
+    <div>
+      <h5>Information</h5>
+      <a href="#/about">About Us</a>
+      <a href="#/contact">Contact Us</a>
+      <a href="#/privacy">Privacy Policy</a>
+      <a href="#/admin">Admin Panel</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© <span id="yr"></span> Public Bulletin — All Rights Reserved</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- Load charting library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Load application scripts -->
+<nav class="mobile-bottom-nav">
+  <a href="#/" class="bottom-nav-item" data-bottom-nav="home">
+    <span class="icon"><i class="fa-solid fa-house"></i></span>
+    <span class="label">Home</span>
+  </a>
+  <a href="#/search-page" class="bottom-nav-item" data-bottom-nav="search">
+    <span class="icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+    <span class="label">Discover</span>
+  </a>
+  <a href="#/bookmarks" class="bottom-nav-item" data-bottom-nav="bookmarks">
+    <span class="icon"><i class="fa-solid fa-star"></i></span>
+    <span class="label">Saved</span>
+  </a>
+  <a href="javascript:void(0)" onclick="goToProfileMobile()" class="bottom-nav-item" data-bottom-nav="profile">
+    <span class="icon"><i class="fa-solid fa-user"></i></span>
+    <span class="label">Profile</span>
+  </a>
+</nav>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "public-bulletin-fullstack",
+  "version": "1.0.0",
+  "description": "Fullstack Public Bulletin News Portal",
+  "scripts": {
+    "start": "npm --prefix backend start",
+    "dev": "npm --prefix backend run dev"
+  }
+}
