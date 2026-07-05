@@ -184,6 +184,13 @@ async function renderArticle(id) {
     const url = location.href;
     const paras = a.content.split('\n\n').map(p => `<p>${p}</p>`).join('');
     const isBookmarked = userBookmarks.includes(a.id);
+    const externalLinkHtml = a.externalUrl ? `
+      <div style="margin: 30px 0; text-align: center;">
+        <a href="${a.externalUrl}" target="_blank" class="btn" style="display: inline-block; padding: 12px 24px; text-decoration: none; font-weight: bold; background: var(--saffron); color: white; border-radius: 8px;">
+          <i class="fa-solid fa-arrow-up-right-from-square" style="margin-right: 8px;"></i> Read Full Coverage at ${a.author}
+        </a>
+      </div>
+    ` : '';
     
     app.innerHTML = `
     <div class="layout">
@@ -198,6 +205,7 @@ async function renderArticle(id) {
         <div class="meta"><i class="fa-solid fa-pen-nib" style="margin-right:4px;"></i> ${a.author} · ${fmtDate(a.date)}</div>
         <img src="${a.img}" alt="${a.title}">
         <div class="content">${paras}</div>
+        ${externalLinkHtml}
         <div class="share-row">
           <button class="share-btn wa" onclick="window.open('https://wa.me/?text=' + encodeURIComponent('${a.title.replace(/'/g, "")} - ' + '${url}'))"><i class="fa-brands fa-whatsapp"></i> Share on WhatsApp</button>
           <button class="share-btn fb" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('${url}'))"><i class="fa-brands fa-facebook-f"></i> Facebook</button>

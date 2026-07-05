@@ -84,6 +84,64 @@ async function saveBase64Image(base64DataUrl) {
   return `/uploads/${filename}`;
 }
 
+// Live search global cache for RSS articles
+const rssCache = {};
+
+// Helper to parse XML RSS feed from Google News
+function parseRSS(xml, q) {
+  const items = [];
+  const itemMatches = xml.match(/<item>[\s\S]*?<\/item>/g);
+  if (!itemMatches) return items;
+
+  const qLower = q.toLowerCase();
+  let image = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80';
+  if (qLower.includes('share') || qLower.includes('market') || qLower.includes('stock') || qLower.includes('nifty') || qLower.includes('sensex') || qLower.includes('gold') || qLower.includes('finance') || qLower.includes('business') || qLower.includes('money')) {
+    image = 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=800&q=80';
+  } else if (qLower.includes('tech') || qLower.includes('phone') || qLower.includes('computer') || qLower.includes('science') || qLower.includes('apple') || qLower.includes('google')) {
+    image = 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80';
+  } else if (qLower.includes('sport') || qLower.includes('cricket') || qLower.includes('football') || qLower.includes('match') || qLower.includes('score')) {
+    image = 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80';
+  } else if (qLower.includes('politics') || qLower.includes('minister') || qLower.includes('election') || qLower.includes('govt')) {
+    image = 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=800&q=80';
+  }
+
+  for (const itemXml of itemMatches) {
+    const titleMatch = itemXml.match(/<title>([\s\S]*?)<\/title>/);
+    const linkMatch = itemXml.match(/<link>([\s\S]*?)<\/link>/);
+    const pubDateMatch = itemXml.match(/<pubDate>([\s\S]*?)<\/pubDate>/);
+    const sourceMatch = itemXml.match(/<source[\s\S]*?>([\s\S]*?)<\/source>/);
+
+    if (titleMatch && linkMatch) {
+      const title = titleMatch[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1').trim();
+      const link = linkMatch[1].trim();
+      const pubDate = pubDateMatch ? pubDateMatch[1] : new Date().toISOString();
+      const source = sourceMatch ? sourceMatch[1].trim() : 'Google News';
+
+      // Clean ID format
+      const id = 'rss-' + Buffer.from(link).toString('base64').substring(0, 16).replace(/[^a-zA-Z0-9]/g, '');
+      
+      const art = {
+        id: id,
+        title: title,
+        cat: qLower.includes('sport') ? 'sports' : (qLower.includes('tech') ? 'technology' : 'world'),
+        img: image,
+        excerpt: `Read full story reported by ${source} on Google News.`,
+        content: `This article was fetched live via Google News RSS feed.\n\nTo read the complete coverage and original content, please click the link below to open the official publisher website:\n\n${link}`,
+        author: source,
+        date: new Date(pubDate).toISOString(),
+        views: Math.floor(Math.random() * 500) + 100,
+        breaking: 0,
+        isExternal: 1,
+        externalUrl: link
+      };
+
+      items.push(art);
+      rssCache[id] = art; // Cache details retrieval
+    }
+  }
+  return items;
+}
+
 // --- API ROUTES ---
 
 // 0. User Registration (Signup)
@@ -163,6 +221,22 @@ app.get('/api/articles', async (req, res) => {
     query += ' ORDER BY date DESC';
 
     const articles = await db.all(query, params);
+
+    // If search query is provided, fetch matching live news from Google News RSS
+    if (q) {
+      try {
+        const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-IN&gl=IN&ceid=IN:en`;
+        const rssRes = await fetch(rssUrl, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } });
+        if (rssRes.ok) {
+          const xml = await rssRes.text();
+          const liveArticles = parseRSS(xml, q);
+          articles.push(...liveArticles.slice(0, 15));
+        }
+      } catch (rssErr) {
+        console.error('Error fetching live RSS news:', rssErr);
+      }
+    }
+
     res.json(articles);
   } catch (err) {
     console.error('Error fetching articles:', err);
@@ -184,6 +258,17 @@ app.get('/api/articles/breaking', async (req, res) => {
 // 4. Get Single Article
 app.get('/api/articles/:id', async (req, res) => {
   const { id } = req.params;
+  
+  // If it's a live RSS article, retrieve from cache
+  if (id.startsWith('rss-')) {
+    const cachedArt = rssCache[id];
+    if (cachedArt) {
+      // Simulate view count increment
+      cachedArt.views += 1;
+      return res.json(cachedArt);
+    }
+  }
+
   try {
     // Increment view count
     await db.run('UPDATE articles SET views = views + 1 WHERE id = ?', [id]);
