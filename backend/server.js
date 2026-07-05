@@ -93,17 +93,37 @@ function parseRSS(xml, q) {
   const itemMatches = xml.match(/<item>[\s\S]*?<\/item>/g);
   if (!itemMatches) return items;
 
-  const qLower = q.toLowerCase();
-  let image = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80';
-  if (qLower.includes('share') || qLower.includes('market') || qLower.includes('stock') || qLower.includes('nifty') || qLower.includes('sensex') || qLower.includes('gold') || qLower.includes('finance') || qLower.includes('business') || qLower.includes('money')) {
-    image = 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=800&q=80';
-  } else if (qLower.includes('tech') || qLower.includes('phone') || qLower.includes('computer') || qLower.includes('science') || qLower.includes('apple') || qLower.includes('google')) {
-    image = 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80';
-  } else if (qLower.includes('sport') || qLower.includes('cricket') || qLower.includes('football') || qLower.includes('match') || qLower.includes('score')) {
-    image = 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80';
-  } else if (qLower.includes('politics') || qLower.includes('minister') || qLower.includes('election') || qLower.includes('govt')) {
-    image = 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=800&q=80';
-  }
+  const weatherImages = [
+    'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1461511669078-d46bf351cd6e?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=800&q=80'
+  ];
+  const stockImages = [
+    'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1624996379697-f01d168b1a52?auto=format&fit=crop&w=800&q=80'
+  ];
+  const techImages = [
+    'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80'
+  ];
+  const sportsImages = [
+    'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=800&q=80'
+  ];
+  const politicsImages = [
+    'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=800&q=80'
+  ];
+  const generalNews = [
+    'https://images.unsplash.com/photo-1495020689067-958852a6565d?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1503694978374-8a2fa686963a?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=800&q=80'
+  ];
 
   for (const itemXml of itemMatches) {
     const titleMatch = itemXml.match(/<title>([\s\S]*?)<\/title>/);
@@ -117,13 +137,32 @@ function parseRSS(xml, q) {
       const pubDate = pubDateMatch ? pubDateMatch[1] : new Date().toISOString();
       const source = sourceMatch ? sourceMatch[1].trim() : 'Google News';
 
+      // Pick dynamic image based on title analysis
+      const text = title.toLowerCase();
+      let pool = generalNews;
+      if (text.includes('rain') || text.includes('monsoon') || text.includes('flood') || text.includes('weather') || text.includes('storm')) {
+        pool = weatherImages;
+      } else if (text.includes('share') || text.includes('market') || text.includes('stock') || text.includes('nifty') || text.includes('sensex') || text.includes('gold') || text.includes('finance') || text.includes('business') || text.includes('money') || text.includes('coin') || text.includes('bitcoin')) {
+        pool = stockImages;
+      } else if (text.includes('tech') || text.includes('phone') || text.includes('computer') || text.includes('science') || text.includes('apple') || text.includes('google') || text.includes('software') || text.includes('internet')) {
+        pool = techImages;
+      } else if (text.includes('sport') || text.includes('cricket') || text.includes('football') || text.includes('match') || text.includes('score') || text.includes('world cup')) {
+        pool = sportsImages;
+      } else if (text.includes('politics') || text.includes('minister') || text.includes('election') || text.includes('govt') || text.includes('bjp') || text.includes('congress') || text.includes('modi') || text.includes('cabinet') || text.includes('bill')) {
+        pool = politicsImages;
+      }
+
+      const sum = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const index = Math.abs(sum) % pool.length;
+      const image = pool[index];
+
       // Clean ID format
       const id = 'rss-' + Buffer.from(link).toString('base64').substring(0, 16).replace(/[^a-zA-Z0-9]/g, '');
       
       const art = {
         id: id,
         title: title,
-        cat: qLower.includes('sport') ? 'sports' : (qLower.includes('tech') ? 'technology' : 'world'),
+        cat: text.includes('sport') ? 'sports' : (text.includes('tech') ? 'technology' : 'world'),
         img: image,
         excerpt: `Read full story reported by ${source} on Google News.`,
         content: `This article was fetched live via Google News RSS feed.\n\nTo read the complete coverage and original content, please click the link below to open the official publisher website:\n\n${link}`,
