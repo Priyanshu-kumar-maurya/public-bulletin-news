@@ -74,5 +74,5 @@ Make sure you have [Node.js](https://nodejs.org/) installed.
 ---
 
 ## 🔐 Default Credentials
-* **Admin Username:** `admin`
-* **Admin Password:** `admin123`
+* **Admin Username:** `****`
+* **Admin Password:** `*****`
