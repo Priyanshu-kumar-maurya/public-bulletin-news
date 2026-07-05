@@ -3,6 +3,9 @@ const CATS = {
   technology: "Technology", sports: "Sports", entertainment: "Entertainment"
 };
 const STORE_KEY = "pb-articles-en";
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? ''
+  : 'https://public-bulletin-news.onrender.com';
 let ARTICLES = [];
 let BREAKING_ARTICLES = [];
 let isAdminSession = localStorage.getItem('pb_role') === 'admin' && !!localStorage.getItem('pb_admin_token');
@@ -29,7 +32,7 @@ function fmtDate(iso) {
 // Fetch articles from API
 async function loadArticles(filters = {}) {
   try {
-    let url = '/api/articles';
+    let url = `${API_BASE}/api/articles`;
     const params = new URLSearchParams();
     if (filters.cat) params.append('cat', filters.cat);
     if (filters.q) params.append('q', filters.q);
@@ -50,7 +53,7 @@ async function loadArticles(filters = {}) {
 // Fetch breaking news for ticker
 async function loadBreakingArticles() {
   try {
-    const res = await fetch('/api/articles/breaking');
+    const res = await fetch(`${API_BASE}/api/articles/breaking`);
     if (!res.ok) throw new Error('Failed to fetch breaking articles');
     BREAKING_ARTICLES = await res.json();
   } catch (e) {
@@ -172,7 +175,7 @@ async function renderArticle(id) {
   app.innerHTML = '<div class="empty-state">Loading article...</div>';
   
   try {
-    const res = await fetch(`/api/articles/${id}`);
+    const res = await fetch(`${API_BASE}/api/articles/${id}`);
     if (!res.ok) {
       app.innerHTML = `<div class="empty-state">This article is not available.</div>`;
       return;
@@ -286,7 +289,7 @@ async function submitAuthForm() {
     return;
   }
 
-  const endpoint = isSignupMode ? '/api/register' : '/api/login';
+  const endpoint = isSignupMode ? `${API_BASE}/api/register` : `${API_BASE}/api/login`;
   
   try {
     const res = await fetch(endpoint, {
@@ -375,7 +378,7 @@ async function loadAndRenderComments(articleId) {
   if (!container) return;
 
   try {
-    const res = await fetch(`/api/articles/${articleId}/comments`);
+    const res = await fetch(`${API_BASE}/api/articles/${articleId}/comments`);
     if (!res.ok) throw new Error('Failed to load comments');
     const comments = await res.json();
 
@@ -438,7 +441,7 @@ async function postComment(articleId) {
   }
 
   try {
-    const res = await fetch(`/api/articles/${articleId}/comments`, {
+    const res = await fetch(`${API_BASE}/api/articles/${articleId}/comments`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -475,7 +478,7 @@ async function loadBookmarks() {
   }
 
   try {
-    const res = await fetch('/api/bookmarks', {
+    const res = await fetch(`${API_BASE}/api/bookmarks`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (res.ok) {
@@ -500,7 +503,7 @@ async function toggleBookmark(articleId, event) {
 
   const isBookmarked = userBookmarks.includes(articleId);
   const method = isBookmarked ? 'DELETE' : 'POST';
-  const url = isBookmarked ? `/api/bookmarks/${articleId}` : '/api/bookmarks';
+  const url = isBookmarked ? `${API_BASE}/api/bookmarks/${articleId}` : `${API_BASE}/api/bookmarks`;
   const body = isBookmarked ? null : JSON.stringify({ articleId });
 
   try {
@@ -569,7 +572,7 @@ async function renderBookmarksView() {
   }
 
   try {
-    const res = await fetch('/api/bookmarks', {
+    const res = await fetch(`${API_BASE}/api/bookmarks`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
@@ -725,7 +728,7 @@ async function loadAndRenderAnalytics() {
   }
 
   try {
-    const res = await fetch('/api/admin/stats', {
+    const res = await fetch(`${API_BASE}/api/admin/stats`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) {
@@ -826,7 +829,7 @@ async function loadAndRenderUsers() {
 
   const listEl = document.getElementById('adminUserList');
   try {
-    const res = await fetch('/api/admin/users', {
+    const res = await fetch(`${API_BASE}/api/admin/users`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) {
@@ -877,7 +880,7 @@ async function addNewAdmin() {
   }
 
   try {
-    const res = await fetch('/api/admin/users', {
+    const res = await fetch(`${API_BASE}/api/admin/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -912,7 +915,7 @@ async function deleteAdminUser(id) {
   }
 
   try {
-    const res = await fetch(`/api/admin/users/${id}`, {
+    const res = await fetch(`${API_BASE}/api/admin/users/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -968,10 +971,10 @@ async function saveArticleForm(id) {
   const articleData = { title, cat, img, imgUpload, excerpt, content, author, breaking };
   
   try {
-    let url = '/api/articles';
+    let url = `${API_BASE}/api/articles`;
     let method = 'POST';
     if (id) {
-      url += `/${id}`;
+      url = `${API_BASE}/api/articles/${id}`;
       method = 'PUT';
     }
 
@@ -1014,7 +1017,7 @@ async function deleteArticle(id) {
   }
 
   try {
-    const res = await fetch(`/api/articles/${id}`, {
+    const res = await fetch(`${API_BASE}/api/articles/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
