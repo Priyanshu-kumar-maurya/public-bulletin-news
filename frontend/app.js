@@ -6,6 +6,14 @@ const STORE_KEY = "pb-articles-en";
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? ''
   : 'https://public-bulletin-news.onrender.com';
+
+function getImageUrl(img) {
+  if (!img) return 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80';
+  if (img.startsWith('/') && !img.startsWith('//')) {
+    return API_BASE + img;
+  }
+  return img;
+}
 let ARTICLES = [];
 let BREAKING_ARTICLES = [];
 let isAdminSession = localStorage.getItem('pb_role') === 'admin' && !!localStorage.getItem('pb_admin_token');
@@ -76,7 +84,7 @@ function articleCard(a) {
   const isBookmarked = userBookmarks.includes(a.id);
   return `<div class="card">
     <a href="#/article/${a.id}">
-      <img src="${a.img}" alt="${a.title}" loading="lazy">
+      <img src="${getImageUrl(a.img)}" alt="${a.title}" loading="lazy">
     </a>
     <div class="body">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -124,7 +132,7 @@ function renderHome() {
     <div>
       <div class="hero-card" style="position:relative;">
         <a href="#/article/${hero.id}">
-          <img src="${hero.img}" alt="${hero.title}">
+          <img src="${getImageUrl(hero.img)}" alt="${hero.title}">
         </a>
         <div class="body">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -203,7 +211,7 @@ async function renderArticle(id) {
           </button>
         </div>
         <div class="meta"><i class="fa-solid fa-pen-nib" style="margin-right:4px;"></i> ${a.author} · ${fmtDate(a.date)}</div>
-        <img src="${a.img}" alt="${a.title}">
+        <img src="${getImageUrl(a.img)}" alt="${a.title}">
         <div class="content">${paras}</div>
         ${externalLinkHtml}
         <div class="share-row">
@@ -642,7 +650,7 @@ function renderAdminDashboard(editId) {
           <input id="f-file" type="file" accept="image/*" onchange="previewUploadImage(event)">
           <div id="f-preview-container" style="${editing && editing.img ? 'display:block;' : 'display:none;'}margin-top:10px;">
             <span style="font-size:0.75rem;color:var(--ink-soft);display:block;margin-bottom:4px;">Selected/Uploaded Image:</span>
-            <img id="f-preview" src="${editing && editing.img ? editing.img : ''}" style="max-height:120px;border-radius:6px;border:1px solid var(--line);">
+            <img id="f-preview" src="${editing && editing.img ? getImageUrl(editing.img) : ''}" style="max-height:120px;border-radius:6px;border:1px solid var(--line);">
           </div>
         </div>
         <div class="field"><label>Excerpt (short summary)</label><textarea id="f-excerpt" style="min-height:70px;">${editing ? editing.excerpt : ''}</textarea></div>
