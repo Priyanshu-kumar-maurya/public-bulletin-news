@@ -165,7 +165,7 @@ function parseRSS(xml, q) {
         cat: text.includes('sport') ? 'sports' : (text.includes('tech') ? 'technology' : 'world'),
         img: image,
         excerpt: `Read full story reported by ${source} on Google News.`,
-        content: `This article was fetched live via Google News RSS feed.\n\nTo read the complete coverage and original content, please click the link below to open the official publisher website:\n\n${link}`,
+        content: `This article was fetched live via Google News RSS feed.\n\nTo read the complete coverage and original content, please click the button below to open the official publisher website.`,
         author: source,
         date: new Date(pubDate).toISOString(),
         views: Math.floor(Math.random() * 500) + 100,
