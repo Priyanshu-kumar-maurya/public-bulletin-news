@@ -200,6 +200,23 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// 4.1 Test RSS Route (diagnostic only)
+app.get('/api/test-rss', async (req, res) => {
+  const q = req.query.q || 'news';
+  try {
+    const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-IN&gl=IN&ceid=IN:en`;
+    const rssRes = await fetch(rssUrl, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } });
+    if (!rssRes.ok) {
+      return res.json({ ok: false, status: rssRes.status, text: await rssRes.text() });
+    }
+    const xml = await rssRes.text();
+    const parsed = parseRSS(xml, q);
+    res.json({ ok: true, count: parsed.length, first: parsed[0] });
+  } catch (e) {
+    res.json({ ok: false, error: e.message, stack: e.stack });
+  }
+});
+
 // 2. Get All Articles (supports optional search query `q` and category filter `cat`)
 app.get('/api/articles', async (req, res) => {
   const { cat, q } = req.query;
